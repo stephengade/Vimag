@@ -1,13 +1,28 @@
 import React, { Component } from "react";
 import { getMovies } from "../../Services/fakeMovie";
+import Pagination from "../Misc/Pagination";
+import { getGenres } from "../../Services/fakeGenre";
 import "./Movie.css";
 import MovieTable from "./MovieTable";
+import Sidebar from "../Sidebar/Sidebar";
 
 export class Movie extends Component {
   // Store all movies in state
   state = {
-    movies: getMovies(),
-    liked: true,
+    movies: [],
+    genres: [],
+    pageSize: 3,
+    activePage: 1,
+  };
+
+  componentDidMount() {
+    this.setState({ movies: getMovies(), genres: getGenres() });
+  }
+
+  // handle genre filter
+
+  handleGenreFilter = (genre) => {
+    this.setState({ selectedGenre: genre });
   };
 
   // Using Filter to delete movie
@@ -26,11 +41,19 @@ export class Movie extends Component {
     this.setState({ movies: allMovies });
   };
 
+  // handlePageChange
+
+  handlePageChange = (p) => {
+    this.setState({ activePage: p });
+  };
+
   // Render
 
   render() {
     // Getting number of movies in State
     const totalMovie = this.state.movies.length;
+    const { pageSize, activePage, liked, movies, genres, selectedGenre } =
+      this.state;
 
     // If totalMovie is 0, then display message
     if (totalMovie === 0) {
@@ -48,7 +71,14 @@ export class Movie extends Component {
     return (
       <div className="container movie_wrapper">
         <div className="row">
-          <div className="col-12 movie_column">
+          <div className="col-3">
+            <Sidebar
+              selectedItem={selectedGenre}
+              list={genres}
+              onFilter={this.handleGenreFilter}
+            />
+          </div>
+          <div className="col-8 movie_column">
             <h2 className="table_title">
               Showing {totalMovie} movies in the database
             </h2>
@@ -68,13 +98,24 @@ export class Movie extends Component {
 
               <tbody>
                 <MovieTable
-                  allMovies={this.state.movies}
+                  allMovies={movies}
                   onDelete={this.handleDelete}
-                  likeState={this.state.liked}
+                  likeState={liked}
                   onLike={this.handleReaction}
+                  currentPage={activePage}
+                  pageSize={pageSize}
+                  selectedGenre={selectedGenre}
+                  genred={genres}
                 />
               </tbody>
             </table>
+
+            <Pagination
+              movieCount={totalMovie}
+              pageSize={pageSize}
+              onPageChange={this.handlePageChange}
+              currentPage={activePage}
+            />
           </div>
         </div>
       </div>

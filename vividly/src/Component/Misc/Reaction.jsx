@@ -1,14 +1,14 @@
 import React from "react";
 
-const Reaction = (props) => {
+const Reaction = ({hasLike, onClick}) => {
   let like_class = "fa fa-heart";
   let unlike_class = "fa fa-heart-o";
 
   return (
     <i
-      className={props.hasLike ? like_class : unlike_class}
+      className={hasLike ? like_class : unlike_class}
       aria-hidden="true"
-      onClick={props.onClick}
+      onClick={onClick}
       style={{ cursor: "pointer" }}
     />
   );
