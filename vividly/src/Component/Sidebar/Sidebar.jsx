@@ -2,6 +2,8 @@ import React from "react";
 import { genres } from "../../Services/fakeGenre";
 
 const Sidebar = ({ onFilter, idProps, textProps, selectedItem }) => {
+ 
+
   return (
     <div className="mt-5 mr-5">
       <ul className="list-group">

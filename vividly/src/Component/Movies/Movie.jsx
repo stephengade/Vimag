@@ -5,24 +5,31 @@ import { getGenres } from "../../Services/fakeGenre";
 import "./Movie.css";
 import MovieTable from "./MovieTable";
 import Sidebar from "../Sidebar/Sidebar";
+import lodash from "lodash";
 
 export class Movie extends Component {
   // Store all movies in state
   state = {
     movies: [],
-    genres: [],
+    genre: [],
     pageSize: 3,
     activePage: 1,
+    sortColumn: { tableColumn: "title", order: "asc" },
   };
 
   componentDidMount() {
-    this.setState({ movies: getMovies(), genres: getGenres() });
+    const genre = [{ name: "All" }, ...getGenres()];
+
+    this.setState({
+      movies: getMovies(),
+      genre: genre,
+    });
   }
 
   // handle genre filter
 
   handleGenreFilter = (genre) => {
-    this.setState({ selectedGenre: genre });
+    this.setState({ selectedGenre: genre, activePage: 1 });
   };
 
   // Using Filter to delete movie
@@ -47,16 +54,40 @@ export class Movie extends Component {
     this.setState({ activePage: p });
   };
 
+  // handleSort
+
+  handleSort = (sortColumn) => {
+    this.setState({ sortColumn });
+  };
+
   // Render
 
   render() {
     // Getting number of movies in State
-    const totalMovie = this.state.movies.length;
-    const { pageSize, activePage, liked, movies, genres, selectedGenre } =
-      this.state;
+    // const totalMovie = this.state.movies.length;
+    const {
+      pageSize,
+      activePage,
+      liked,
+      movies,
+      genres,
+      selectedGenre,
+      sortColumn,
+    } = this.state;
+
+    const filterAll =
+      selectedGenre && selectedGenre._id
+        ? movies.filter((g) => g.genre._id === selectedGenre._id)
+        : movies;
+
+    const TableSort = lodash.orderBy(
+      filterAll,
+      [sortColumn.tableColumn],
+      [sortColumn.order]
+    );
 
     // If totalMovie is 0, then display message
-    if (totalMovie === 0) {
+    if (filterAll.length === 0) {
       return (
         <>
           <h2 className="mt-5 text-center">No Movie Again!</h2>
@@ -80,38 +111,23 @@ export class Movie extends Component {
           </div>
           <div className="col-8 movie_column">
             <h2 className="table_title">
-              Showing {totalMovie} movies in the database
+              Showing {filterAll.length} movies in the database
             </h2>
             {/* Table Started */}
 
-            <table className="table">
-              <thead>
-                <tr>
-                  <th scope="col">Title</th>
-                  <th scope="col">Genre</th>
-                  <th scope="col">Stock</th>
-                  <th scope="col">Rate</th>
-                  <th></th>
-                  <th></th>
-                </tr>
-              </thead>
-
-              <tbody>
-                <MovieTable
-                  allMovies={movies}
-                  onDelete={this.handleDelete}
-                  likeState={liked}
-                  onLike={this.handleReaction}
-                  currentPage={activePage}
-                  pageSize={pageSize}
-                  selectedGenre={selectedGenre}
-                  genred={genres}
-                />
-              </tbody>
-            </table>
+            <MovieTable
+              onDelete={this.handleDelete}
+              likeState={liked}
+              onLike={this.handleReaction}
+              currentPage={activePage}
+              pageSize={pageSize}
+              tableSort={TableSort}
+              sortColumn={sortColumn}
+              onSort={this.handleSort}
+            />
 
             <Pagination
-              movieCount={totalMovie}
+              movieCount={filterAll.length}
               pageSize={pageSize}
               onPageChange={this.handlePageChange}
               currentPage={activePage}

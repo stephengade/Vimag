@@ -8,7 +8,6 @@ const Pagination = ({ movieCount, pageSize, onPageChange, currentPage }) => {
   if (Math.ceil(pagesCount) === 1) return null;
   const pages = lodash.range(1, pagesCount + 1);
 
-  console.log(currentPage);
 
   return (
     <nav className="ml-2 flex">
